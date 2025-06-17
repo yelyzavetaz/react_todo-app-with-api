@@ -1,5 +1,11 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { ChangeEvent, FormEvent, useState } from 'react';
+import React, {
+  ChangeEvent,
+  FocusEvent,
+  FormEvent,
+  KeyboardEvent,
+  useState,
+} from 'react';
 import { Todo } from '../../types/Todo';
 import cn from 'classnames';
 import { client } from '../../utils/fetchClient';
@@ -40,7 +46,11 @@ export const TodoItem: React.FC<TodoItemProps> = ({
     setValue(event.target.value);
   };
 
-  const onBlurEditingHandler = () => {
+  const onBlurEditingHandler = (event: FocusEvent<HTMLFormElement>) => {
+    if (event.relatedTarget) {
+      return;
+    }
+
     if (value === todo.title) {
       setIsEditing(false);
       if (setTodoIdsToUpdate) {
@@ -50,13 +60,40 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       return;
     }
 
+    if (value.length === 0) {
+      if (setTodoIdsToDelete && todoIdsToDelete) {
+        setTodoIdsToDelete([...todoIdsToDelete, todo.id]);
+      }
+
+      client
+        .delete(`/todos/${todo.id}`)
+        .then(() => {
+          if (todos && setTodos) {
+            setTodos(todos.filter(todoItem => todoItem.id !== todo.id));
+          }
+        })
+        .catch(() => {
+          if (setErrorMessage) {
+            setErrorMessage(ErrorMessage.DeleteTodo);
+          }
+        })
+        .finally(() => {
+          if (setTodoIdsToDelete && todoIdsToDelete) {
+            setTodoIdsToDelete(todoIdsToDelete?.filter(id => id !== todo.id));
+          }
+        });
+
+      return;
+    }
+
     if (setTodoIdsToUpdate && todoIdsToUpdate) {
       setTodoIdsToUpdate([...todoIdsToUpdate, todo.id]);
     }
 
     client
-      .patch<Todo>(`/todos/${todo.id}`, { title: value })
+      .patch<Todo>(`/todos/${todo.id}`, { title: value.trim() })
       .then(updatedTodo => {
+        setIsEditing(false);
         if (todos) {
           const updatedTodos = todos.map(currentTodo => {
             if (currentTodo.id === updatedTodo.id) {
@@ -77,7 +114,6 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         }
       })
       .finally(() => {
-        setIsEditing(false);
         if (setTodoIdsToUpdate && todoIdsToUpdate) {
           setTodoIdsToUpdate(todoIdsToUpdate.filter(id => id !== todo.id));
         }
@@ -95,13 +131,40 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       return;
     }
 
+    if (value.length === 0) {
+      if (setTodoIdsToDelete && todoIdsToDelete) {
+        setTodoIdsToDelete([...todoIdsToDelete, todo.id]);
+      }
+
+      client
+        .delete(`/todos/${todo.id}`)
+        .then(() => {
+          if (todos && setTodos) {
+            setTodos(todos.filter(todoItem => todoItem.id !== todo.id));
+          }
+        })
+        .catch(() => {
+          if (setErrorMessage) {
+            setErrorMessage(ErrorMessage.DeleteTodo);
+          }
+        })
+        .finally(() => {
+          if (setTodoIdsToDelete && todoIdsToDelete) {
+            setTodoIdsToDelete(todoIdsToDelete?.filter(id => id !== todo.id));
+          }
+        });
+
+      return;
+    }
+
     if (setTodoIdsToUpdate && todoIdsToUpdate) {
       setTodoIdsToUpdate([...todoIdsToUpdate, todo.id]);
     }
 
     client
-      .patch<Todo>(`/todos/${todo.id}`, { title: value })
+      .patch<Todo>(`/todos/${todo.id}`, { title: value.trim() })
       .then(updatedTodo => {
+        setIsEditing(false);
         if (todos) {
           const updatedTodos = todos.map(currentTodo => {
             if (currentTodo.id === updatedTodo.id) {
@@ -122,7 +185,6 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         }
       })
       .finally(() => {
-        setIsEditing(false);
         if (setTodoIdsToUpdate && todoIdsToUpdate) {
           setTodoIdsToUpdate(todoIdsToUpdate.filter(id => id !== todo.id));
         }
@@ -192,6 +254,15 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       });
   };
 
+  const handleOnKeyUp = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+      if (setTodoIdsToUpdate) {
+        setTodoIdsToUpdate([]);
+      }
+    }
+  };
+
   return (
     <div data-cy="Todo" className={cn('todo', { completed: todo.completed })}>
       <label className="todo__status-label">
@@ -222,7 +293,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
           </button>
         </>
       ) : (
-        <form onSubmit={onSubmitEditingHandler}>
+        <form onSubmit={onSubmitEditingHandler} onBlur={onBlurEditingHandler}>
           <input
             data-cy="TodoTitleField"
             type="text"
@@ -230,7 +301,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
             placeholder="Empty todo will be deleted"
             value={value}
             onChange={editingChangeHandler}
-            onBlur={onBlurEditingHandler}
+            onKeyUp={handleOnKeyUp}
             autoFocus
           />
         </form>
