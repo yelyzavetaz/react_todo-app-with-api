@@ -54,7 +54,8 @@ export const App: React.FC = () => {
         </header>
 
         <TodoList
-          todos={visibleTodos}
+          todos={todos}
+          visibleTodos={visibleTodos}
           tempTodo={tempTodo}
           setTodos={setTodos}
           setErrorMessage={setErrorMessage}

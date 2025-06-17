@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, FormEvent, useState } from 'react';
 import { Todo } from '../../types/Todo';
 import cn from 'classnames';
 import { client } from '../../utils/fetchClient';
@@ -28,20 +28,111 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   todoIdsToUpdate,
   setTodoIdsToUpdate,
 }) => {
-  //const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [value, setValue] = useState('');
+
+  const onDoubleClickEditingHandler = () => {
+    setIsEditing(true);
+    setValue(todo.title);
+  };
+
+  const editingChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
+    setValue(event.target.value);
+  };
+
+  const onBlurEditingHandler = () => {
+    if (value === todo.title) {
+      setIsEditing(false);
+      if (setTodoIdsToUpdate) {
+        setTodoIdsToUpdate([]);
+      }
+
+      return;
+    }
+
+    if (setTodoIdsToUpdate && todoIdsToUpdate) {
+      setTodoIdsToUpdate([...todoIdsToUpdate, todo.id]);
+    }
+
+    client
+      .patch<Todo>(`/todos/${todo.id}`, { title: value })
+      .then(updatedTodo => {
+        if (todos) {
+          const updatedTodos = todos.map(currentTodo => {
+            if (currentTodo.id === updatedTodo.id) {
+              return updatedTodo;
+            }
+
+            return currentTodo;
+          });
+
+          if (setTodos) {
+            setTodos(updatedTodos);
+          }
+        }
+      })
+      .catch(() => {
+        if (setErrorMessage) {
+          setErrorMessage(ErrorMessage.UpdateTodo);
+        }
+      })
+      .finally(() => {
+        setIsEditing(false);
+        if (setTodoIdsToUpdate && todoIdsToUpdate) {
+          setTodoIdsToUpdate(todoIdsToUpdate.filter(id => id !== todo.id));
+        }
+      });
+  };
+
+  const onSubmitEditingHandler = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (value === todo.title) {
+      setIsEditing(false);
+      if (setTodoIdsToUpdate) {
+        setTodoIdsToUpdate([]);
+      }
+
+      return;
+    }
+
+    if (setTodoIdsToUpdate && todoIdsToUpdate) {
+      setTodoIdsToUpdate([...todoIdsToUpdate, todo.id]);
+    }
+
+    client
+      .patch<Todo>(`/todos/${todo.id}`, { title: value })
+      .then(updatedTodo => {
+        if (todos) {
+          const updatedTodos = todos.map(currentTodo => {
+            if (currentTodo.id === updatedTodo.id) {
+              return updatedTodo;
+            }
+
+            return currentTodo;
+          });
+
+          if (setTodos) {
+            setTodos(updatedTodos);
+          }
+        }
+      })
+      .catch(() => {
+        if (setErrorMessage) {
+          setErrorMessage(ErrorMessage.UpdateTodo);
+        }
+      })
+      .finally(() => {
+        setIsEditing(false);
+        if (setTodoIdsToUpdate && todoIdsToUpdate) {
+          setTodoIdsToUpdate(todoIdsToUpdate.filter(id => id !== todo.id));
+        }
+      });
+  };
 
   const isLoading =
     todoIdsToUpdate?.includes(todo.id) ||
     todoIdsToDelete?.includes(todo.id) ||
     isTempTodo;
-
-  // useEffect(() => {
-  //   if (todoIdsToDelete && todoIdsToDelete.includes(todo.id)) {
-  //     setIsLoading(true);
-  //   } else {
-  //     setIsLoading(false);
-  //   }
-  // }, [todoIdsToDelete, todo.id]);
 
   const handleOnClickDelete = () => {
     if (setTodoIdsToDelete && todoIdsToDelete) {
@@ -91,7 +182,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       })
       .catch(() => {
         if (setErrorMessage) {
-          setErrorMessage(ErrorMessage.UpdateTodos);
+          setErrorMessage(ErrorMessage.UpdateTodo);
         }
       })
       .finally(() => {
@@ -112,18 +203,38 @@ export const TodoItem: React.FC<TodoItemProps> = ({
           onChange={handleOnChangeCompleted}
         />
       </label>
-      <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
-      </span>
-
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={handleOnClickDelete}
-      >
-        ×
-      </button>
+      {!isEditing ? (
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={onDoubleClickEditingHandler}
+          >
+            {todo.title}
+          </span>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDelete"
+            onClick={handleOnClickDelete}
+          >
+            ×
+          </button>
+        </>
+      ) : (
+        <form onSubmit={onSubmitEditingHandler}>
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={value}
+            onChange={editingChangeHandler}
+            onBlur={onBlurEditingHandler}
+            autoFocus
+          />
+        </form>
+      )}
 
       <div
         data-cy="TodoLoader"

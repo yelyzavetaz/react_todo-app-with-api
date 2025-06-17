@@ -5,6 +5,7 @@ import { ErrorMessage } from '../../types/ErrorStatusType';
 
 type TodoListProps = {
   todos: Todo[];
+  visibleTodos: Todo[];
   tempTodo: Todo | null;
   setTodos: (todos: Todo[]) => void;
   setErrorMessage: (errorMessage: ErrorMessage) => void;
@@ -16,6 +17,7 @@ type TodoListProps = {
 
 export const TodoList: React.FC<TodoListProps> = ({
   todos,
+  visibleTodos,
   tempTodo,
   setTodos,
   setErrorMessage,
@@ -26,7 +28,7 @@ export const TodoList: React.FC<TodoListProps> = ({
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {todos.map(todo => {
+      {visibleTodos.map(todo => {
         return (
           <TodoItem
             key={todo.id}
