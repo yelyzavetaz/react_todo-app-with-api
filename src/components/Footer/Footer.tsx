@@ -2,8 +2,8 @@ import React from 'react';
 import cn from 'classnames';
 import { FilterStatusType } from '../../types/FilterStatusType';
 import { Todo } from '../../types/Todo';
-import { client } from '../../utils/fetchClient';
 import { ErrorMessage } from '../../types/ErrorStatusType';
+import { deleteTodo } from '../../api/todos';
 
 type FooterProps = {
   todos: Todo[];
@@ -39,7 +39,7 @@ export const Footer: React.FC<FooterProps> = ({
 
     Promise.allSettled(
       completedTodosIds.map(todoId => {
-        return client.delete(`/todos/${todoId}`).then(() => todoId);
+        return deleteTodo(todoId).then(() => todoId);
       }),
     )
       .then(results => {
@@ -73,38 +73,19 @@ export const Footer: React.FC<FooterProps> = ({
       </span>
 
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={cn('filter__link', {
-            selected: filterStatus === FilterStatusType.All,
-          })}
-          data-cy="FilterLinkAll"
-          onClick={() => handleChangeFilterStatus(FilterStatusType.All)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={cn('filter__link', {
-            selected: filterStatus === FilterStatusType.Active,
-          })}
-          data-cy="FilterLinkActive"
-          onClick={() => handleChangeFilterStatus(FilterStatusType.Active)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={cn('filter__link', {
-            selected: filterStatus === FilterStatusType.Completed,
-          })}
-          data-cy="FilterLinkCompleted"
-          onClick={() => handleChangeFilterStatus(FilterStatusType.Completed)}
-        >
-          Completed
-        </a>
+        {Object.values(FilterStatusType).map(status => (
+          <a
+            key={status}
+            href={`#/${status.toLowerCase()}`}
+            className={cn('filter__link', {
+              selected: filterStatus === status,
+            })}
+            data-cy={`FilterLink${status}`}
+            onClick={() => handleChangeFilterStatus(status)}
+          >
+            {status}
+          </a>
+        ))}
       </nav>
 
       <button

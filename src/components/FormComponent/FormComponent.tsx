@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { client } from '../../utils/fetchClient';
-import { USER_ID } from '../../api/todos';
+import { createTodo, USER_ID } from '../../api/todos';
 import { Todo } from '../../types/Todo';
 import { ErrorMessage } from '../../types/ErrorStatusType';
 
@@ -51,8 +50,7 @@ export const FormComponent: React.FC<FormComponentProps> = ({
       inputRef.current.disabled = true;
     }
 
-    client
-      .post<Todo>('/todos', temp)
+    createTodo(temp)
       .then(createdTodo => {
         setTodos([...todos, createdTodo]);
         setNewTodoTitle('');

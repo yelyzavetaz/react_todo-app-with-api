@@ -10,6 +10,7 @@ import { Todo } from '../../types/Todo';
 import cn from 'classnames';
 import { client } from '../../utils/fetchClient';
 import { ErrorMessage } from '../../types/ErrorStatusType';
+import { deleteTodo } from '../../api/todos';
 
 type TodoItemProps = {
   todo: Todo;
@@ -201,8 +202,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       setTodoIdsToDelete([...todoIdsToDelete, todo.id]);
     }
 
-    client
-      .delete(`/todos/${todo.id}`)
+    deleteTodo(todo.id)
       .then(() => {
         if (todos && setTodos) {
           setTodos(todos.filter(todoItem => todoItem.id !== todo.id));
