@@ -54,41 +54,33 @@ export const TodoItem: React.FC<TodoItemProps> = ({
 
     if (value === todo.title) {
       setIsEditing(false);
-      if (setTodoIdsToUpdate) {
-        setTodoIdsToUpdate([]);
-      }
+      setTodoIdsToUpdate?.([]);
 
       return;
     }
 
     if (value.length === 0) {
-      if (setTodoIdsToDelete && todoIdsToDelete) {
-        setTodoIdsToDelete([...todoIdsToDelete, todo.id]);
-      }
+      setTodoIdsToDelete?.([...(todoIdsToDelete || []), todo.id]);
 
       deleteTodo(todo.id)
         .then(() => {
           if (todos && setTodos) {
-            setTodos(todos.filter(todoItem => todoItem.id !== todo.id));
+            setTodos?.(todos.filter(todoItem => todoItem.id !== todo.id));
           }
         })
         .catch(() => {
-          if (setErrorMessage) {
-            setErrorMessage(ErrorMessage.DeleteTodo);
-          }
+          setErrorMessage?.(ErrorMessage.DeleteTodo);
         })
         .finally(() => {
-          if (setTodoIdsToDelete && todoIdsToDelete) {
-            setTodoIdsToDelete(todoIdsToDelete?.filter(id => id !== todo.id));
-          }
+          setTodoIdsToDelete?.(
+            (todoIdsToDelete || []).filter(id => id !== todo.id),
+          );
         });
 
       return;
     }
 
-    if (setTodoIdsToUpdate && todoIdsToUpdate) {
-      setTodoIdsToUpdate([...todoIdsToUpdate, todo.id]);
-    }
+    setTodoIdsToUpdate?.([...(todoIdsToUpdate || []), todo.id]);
 
     updateTodoTitle(todo.id, value)
       .then(updatedTodo => {
@@ -108,14 +100,12 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         }
       })
       .catch(() => {
-        if (setErrorMessage) {
-          setErrorMessage(ErrorMessage.UpdateTodo);
-        }
+        setErrorMessage?.(ErrorMessage.UpdateTodo);
       })
       .finally(() => {
-        if (setTodoIdsToUpdate && todoIdsToUpdate) {
-          setTodoIdsToUpdate(todoIdsToUpdate.filter(id => id !== todo.id));
-        }
+        setTodoIdsToUpdate?.(
+          (todoIdsToUpdate || []).filter(id => id !== todo.id),
+        );
       });
   };
 
@@ -123,17 +113,13 @@ export const TodoItem: React.FC<TodoItemProps> = ({
     event.preventDefault();
     if (value === todo.title) {
       setIsEditing(false);
-      if (setTodoIdsToUpdate) {
-        setTodoIdsToUpdate([]);
-      }
+      setTodoIdsToUpdate?.([]);
 
       return;
     }
 
     if (value.length === 0) {
-      if (setTodoIdsToDelete && todoIdsToDelete) {
-        setTodoIdsToDelete([...todoIdsToDelete, todo.id]);
-      }
+      setTodoIdsToDelete?.([...(todoIdsToDelete || []), todo.id]);
 
       deleteTodo(todo.id)
         .then(() => {
@@ -142,22 +128,18 @@ export const TodoItem: React.FC<TodoItemProps> = ({
           }
         })
         .catch(() => {
-          if (setErrorMessage) {
-            setErrorMessage(ErrorMessage.DeleteTodo);
-          }
+          setErrorMessage?.(ErrorMessage.DeleteTodo);
         })
         .finally(() => {
-          if (setTodoIdsToDelete && todoIdsToDelete) {
-            setTodoIdsToDelete(todoIdsToDelete?.filter(id => id !== todo.id));
-          }
+          setTodoIdsToDelete?.(
+            (todoIdsToDelete || []).filter(id => id !== todo.id),
+          );
         });
 
       return;
     }
 
-    if (setTodoIdsToUpdate && todoIdsToUpdate) {
-      setTodoIdsToUpdate([...todoIdsToUpdate, todo.id]);
-    }
+    setTodoIdsToUpdate?.([...(todoIdsToUpdate || []), todo.id]);
 
     updateTodoTitle(todo.id, value)
       .then(updatedTodo => {
@@ -178,13 +160,13 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       })
       .catch(() => {
         if (setErrorMessage) {
-          setErrorMessage(ErrorMessage.UpdateTodo);
+          setErrorMessage?.(ErrorMessage.UpdateTodo);
         }
       })
       .finally(() => {
-        if (setTodoIdsToUpdate && todoIdsToUpdate) {
-          setTodoIdsToUpdate(todoIdsToUpdate.filter(id => id !== todo.id));
-        }
+        setTodoIdsToUpdate?.(
+          (todoIdsToUpdate || []).filter(id => id !== todo.id),
+        );
       });
   };
 
