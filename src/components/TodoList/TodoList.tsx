@@ -44,7 +44,7 @@ export const TodoList: React.FC<TodoListProps> = ({
           />
         );
       })}
-      {tempTodo && <TodoItem todo={tempTodo} isTempTodo={true} />}
+      {tempTodo && <TodoItem todo={tempTodo} isTempTodo />}
     </section>
   );
 };
