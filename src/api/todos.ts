@@ -14,3 +14,11 @@ export const deleteTodo = (id: number) => {
 export const createTodo = (todo: Todo) => {
   return client.post<Todo>('/todos', todo);
 };
+
+export const updateTodoTitle = (id: number, title: string) => {
+  return client.patch<Todo>(`/todos/${id}`, { title: title.trim() });
+};
+
+export const updateTodoStatus = (id: number, status: boolean) => {
+  return client.patch<Todo>(`/todos/${id}`, { completed: status });
+};

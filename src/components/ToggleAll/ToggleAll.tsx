@@ -1,8 +1,8 @@
 import React from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
-import { client } from '../../utils/fetchClient';
 import { ErrorMessage } from '../../types/ErrorStatusType';
+import { updateTodoStatus } from '../../api/todos';
 
 type ToggleAllProps = {
   todos: Todo[];
@@ -25,9 +25,9 @@ export const ToggleAll: React.FC<ToggleAllProps> = ({
 
       Promise.allSettled(
         todos.map(currentTodo => {
-          return client
-            .patch<Todo>(`/todos/${currentTodo.id}`, { completed: false })
-            .then(updatedTodo => updatedTodo);
+          return updateTodoStatus(currentTodo.id, false).then(
+            updatedTodo => updatedTodo,
+          );
         }),
       )
         .then(results => {
@@ -67,9 +67,9 @@ export const ToggleAll: React.FC<ToggleAllProps> = ({
 
       Promise.allSettled(
         notCompletedTodos.map(currentTodo => {
-          return client
-            .patch<Todo>(`/todos/${currentTodo.id}`, { completed: true })
-            .then(updatedTodo => updatedTodo);
+          return updateTodoStatus(currentTodo.id, true).then(
+            updatedTodo => updatedTodo,
+          );
         }),
       )
         .then(results => {

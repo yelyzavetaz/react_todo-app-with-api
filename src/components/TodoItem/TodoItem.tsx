@@ -8,9 +8,9 @@ import React, {
 } from 'react';
 import { Todo } from '../../types/Todo';
 import cn from 'classnames';
-import { client } from '../../utils/fetchClient';
+
 import { ErrorMessage } from '../../types/ErrorStatusType';
-import { deleteTodo } from '../../api/todos';
+import { deleteTodo, updateTodoStatus, updateTodoTitle } from '../../api/todos';
 
 type TodoItemProps = {
   todo: Todo;
@@ -66,8 +66,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         setTodoIdsToDelete([...todoIdsToDelete, todo.id]);
       }
 
-      client
-        .delete(`/todos/${todo.id}`)
+      deleteTodo(todo.id)
         .then(() => {
           if (todos && setTodos) {
             setTodos(todos.filter(todoItem => todoItem.id !== todo.id));
@@ -91,8 +90,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       setTodoIdsToUpdate([...todoIdsToUpdate, todo.id]);
     }
 
-    client
-      .patch<Todo>(`/todos/${todo.id}`, { title: value.trim() })
+    updateTodoTitle(todo.id, value)
       .then(updatedTodo => {
         setIsEditing(false);
         if (todos) {
@@ -137,8 +135,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         setTodoIdsToDelete([...todoIdsToDelete, todo.id]);
       }
 
-      client
-        .delete(`/todos/${todo.id}`)
+      deleteTodo(todo.id)
         .then(() => {
           if (todos && setTodos) {
             setTodos(todos.filter(todoItem => todoItem.id !== todo.id));
@@ -162,8 +159,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       setTodoIdsToUpdate([...todoIdsToUpdate, todo.id]);
     }
 
-    client
-      .patch<Todo>(`/todos/${todo.id}`, { title: value.trim() })
+    updateTodoTitle(todo.id, value)
       .then(updatedTodo => {
         setIsEditing(false);
         if (todos) {
@@ -225,8 +221,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       setTodoIdsToUpdate([...todoIdsToUpdate, todo.id]);
     }
 
-    client
-      .patch<Todo>(`/todos/${todo.id}`, { completed: event.target.checked })
+    updateTodoStatus(todo.id, event.target.checked)
       .then(updatedTodo => {
         if (todos) {
           const updatedTodos = todos.map(currentTodo => {
